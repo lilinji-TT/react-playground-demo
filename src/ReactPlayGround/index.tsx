@@ -1,8 +1,8 @@
 import { Allotment } from "allotment";
 import "allotment/dist/style.css";
-import CodeEditor from "../components/CodeEditor";
-import Header from "../components/Header/index";
-import Preview from "../components/Preview";
+import CodeEditor from "./components/CodeEditor";
+import Header from "./components/Header";
+import Preview from "./components/Preview";
 export default function ReactPlayGround() {
   return (
     <div style={{ height: "100vh" }}>

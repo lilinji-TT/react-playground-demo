@@ -1,4 +1,4 @@
-import logoSvg from "../../icons/logo.svg";
+import logoSvg from "../../../icons/logo.svg";
 import headerStyles from "./header.module.scss";
 export default function Header() {
   return (
