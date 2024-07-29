@@ -1,6 +1,6 @@
 import "./App.css";
-import ReactPlayGround from "./ReactPlayGround/index";
-import { PlaygroundProvider } from "./ReactPlayGround/PlaygroundContext";
+import ReactPlayGround from "./ReactPlayground";
+import { PlaygroundProvider } from "./ReactPlayground/PlaygroundContext";
 function App() {
   return (
     <PlaygroundProvider>

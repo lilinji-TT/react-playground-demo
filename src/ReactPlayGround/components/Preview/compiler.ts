@@ -67,15 +67,15 @@ const json2Js = (file: File) => {
 const css2Js = (file: File) => {
   const randomId = new Date().getTime();
   const js = `
-    (() => {
-        const stylesheet = document.createElement('style')
-        stylesheet.setAttribute('id', 'style_${randomId}_${file.name}')
-        document.head.appendChild(stylesheet)
+(() => {
+    const stylesheet = document.createElement('style')
+    stylesheet.setAttribute('id', 'style_${randomId}_${file.name}')
+    document.head.appendChild(stylesheet)
 
-        const styles = document.createTextNode(\`${file.value}\`)
-        stylesheet.innerHTML = ''
-        stylesheet.appendChild(styles)
-    })()
+    const styles = document.createTextNode(\`${file.value}\`)
+    stylesheet.innerHTML = ''
+    stylesheet.appendChild(styles)
+})()
     `;
   return URL.createObjectURL(
     new Blob([js], { type: "application/javascript" })

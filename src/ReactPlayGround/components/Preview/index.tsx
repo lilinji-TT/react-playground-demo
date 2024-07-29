@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { IMPORT_MAP_FILE_NAME } from "../../files";
 import { PlaygroundContext } from "../../PlaygroundContext";
 import { compile } from "./compiler";
@@ -7,14 +7,10 @@ import iframeRaw from "./iframe.html?raw";
 export default function Preview() {
   const { files } = useContext(PlaygroundContext);
   const [compiledCode, setCompiledCode] = useState("");
- const latestComplieCode =  useRef("");
 
   useEffect(() => {
     const res = compile(files);
-    latestComplieCode.current = res;
     setCompiledCode(res);
-    setIframeUrl(() => getIframeUrl());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [files]);
 
   const getIframeUrl = () => {
@@ -25,15 +21,17 @@ export default function Preview() {
       )
       .replace(
         '<script type="module" id="appSrc"></script>',
-        `<script type="module" id="appSrc">${latestComplieCode.current}</script>`
+        `<script type="module" id="appSrc">${compiledCode}</script>`
       );
-      console.log(compiledCode)
     return URL.createObjectURL(new Blob([res], { type: "text/html" }));
   };
 
+  const [iframeUrl, setIframeUrl] = useState(getIframeUrl());
 
-  const [iframeUrl, setIframeUrl] = useState(() => getIframeUrl());
-
+  useEffect(() => {
+    setIframeUrl(getIframeUrl());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [files[IMPORT_MAP_FILE_NAME].value, compiledCode]);
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
       <iframe
