@@ -1,8 +1,16 @@
 import { useContext, useEffect, useState } from "react";
 import { IMPORT_MAP_FILE_NAME } from "../../files";
 import { PlaygroundContext } from "../../PlaygroundContext";
+import { ERROR, Message } from "../Message";
 import { compile } from "./compiler";
 import iframeRaw from "./iframe.html?raw";
+
+interface MessageData {
+  data: {
+    type: string;
+    message: string;
+  };
+}
 
 export default function Preview() {
   const { files } = useContext(PlaygroundContext);
@@ -32,6 +40,21 @@ export default function Preview() {
     setIframeUrl(getIframeUrl());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [files[IMPORT_MAP_FILE_NAME].value, compiledCode]);
+
+  const [error, setError] = useState("");
+  const handleMessage = (messageObj: MessageData) => {
+    const { type, message } = messageObj.data;
+    if (type === ERROR) {
+      setError(message);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("message", handleMessage);
+    return () => {
+      window.removeEventListener("message", handleMessage);
+    };
+  }, []);
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
       <iframe
@@ -43,6 +66,8 @@ export default function Preview() {
           border: "none",
         }}
       />
+      <Message type="error" content={error} />
+
       {/* <Editor
         file={{
           name: "dist.js",
