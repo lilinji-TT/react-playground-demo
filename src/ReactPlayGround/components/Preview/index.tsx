@@ -1,9 +1,11 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { IMPORT_MAP_FILE_NAME } from "../../files";
 import { PlaygroundContext } from "../../PlaygroundContext";
 import { ERROR, Message } from "../Message";
-import { compile } from "./compiler";
+import { compile } from "./compiler.worker";
+import CompilerWorker from "./compiler.worker?worker";
 import iframeRaw from "./iframe.html?raw";
+import debounce from "lodash-es/debounce";
 
 interface MessageData {
   data: {
@@ -20,6 +22,27 @@ export default function Preview() {
     const res = compile(files);
     setCompiledCode(res);
   }, [files]);
+
+  const compilerWorkerRef = useRef<Worker>();
+
+  useEffect(() => {
+    if (!compilerWorkerRef.current) {
+      compilerWorkerRef.current = new CompilerWorker();
+      compilerWorkerRef.current.addEventListener("message", (data) => {
+        if (data.type === "COMPILED_CODE") {
+          setCompiledCode(data.data);
+        }
+      });
+    }
+  }, []);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(
+    debounce(() => {
+      compilerWorkerRef.current?.postMessage(files);
+    }, 500),
+    [files]
+  );
 
   const getIframeUrl = () => {
     const res = iframeRaw
