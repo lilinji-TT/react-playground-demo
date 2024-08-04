@@ -1,6 +1,6 @@
-import { createContext, PropsWithChildren, useState } from "react";
+import { createContext, PropsWithChildren, useEffect, useState } from "react";
 import { initFiles } from "./files";
-import { fileName2Language } from "./utils";
+import { compress, fileName2Language, uncompress } from "./utils";
 
 export interface File {
   name: string;
@@ -33,9 +33,20 @@ export const PlaygroundContext = createContext<PlaygroundContext>({
   selectedFileName: "App.tsx",
 } as PlaygroundContext);
 
+const getFilesFromURL = () => {
+  let files: Files | undefined;
+  try {
+    const hash = uncompress(window.location.hash.slice(1));
+    files = JSON.parse(hash);
+  } catch (error) {
+    console.error(error);
+  }
+
+  return files;
+};
 export const PlaygroundProvider = (props: PropsWithChildren) => {
   const { children } = props;
-  const [files, setFiles] = useState<Files>(initFiles);
+  const [files, setFiles] = useState<Files>(getFilesFromURL() || initFiles);
   const [theme, setTheme] = useState<Theme>("light");
   const [selectedFileName, setSelectedFileName] = useState("App.tsx");
 
@@ -72,6 +83,11 @@ export const PlaygroundProvider = (props: PropsWithChildren) => {
 
     setFiles({ ...rest, ...newFiles });
   };
+
+  useEffect(() => {
+    const hash = compress(JSON.stringify(files));
+    window.location.hash = hash;
+  }, [files]);
 
   return (
     <PlaygroundContext.Provider
